@@ -59,7 +59,7 @@ class BLECallbacks : public BLECharacteristicCallbacks
           Serial.println("Servo down");
           servoDown();
         }
-        else if(value[0] == '1')
+        else if (value[0] == '1')
         {
           Serial.println("Servo up");
           servoUp();
@@ -100,6 +100,14 @@ class BLECallbacks : public BLECharacteristicCallbacks
 };
 
 void setup()
+{
+  Serial.begin(115200);
+  Serial.println("Starting BLE work!");
+
+  pinMode(33, OUTPUT);
+  digitalWrite(33, HIGH);
+}
+void setup1()
 {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
