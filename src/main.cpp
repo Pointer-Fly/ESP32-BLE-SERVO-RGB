@@ -8,40 +8,24 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
-#include <ESP32Servo.h>
+// #include <ESP32Servo.h>
 #include <FastLED.h>
 
 #define LED_PIN 15
 #define NUM_LEDS 1
 
-#define MAX_WIDTH 2500
-#define MIN_WIDTH 500
-#define SERVO_PIN 12
+// #define MAX_WIDTH 2500
+// #define MIN_WIDTH 500
+// #define SERVO_PIN 12
+#include <Servo.h>
 
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_SERVO_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 #define CHARACTERISTIC_RGB_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a9"
 
-Servo my_servo;
+// Servo my_servo;
+ServoPetals my_servo = ServoPetals();
 CRGB leds[NUM_LEDS];
-
-void servoDown()
-{
-  for (int i = 180; i >= 0; i--)
-  {
-    my_servo.write(i);
-    delay(15);
-  }
-}
-
-void servoUp()
-{
-  for (int i = 0; i <= 180; i++)
-  {
-    my_servo.write(i);
-    delay(15);
-  }
-}
 
 class BLECallbacks : public BLECharacteristicCallbacks
 {
@@ -57,12 +41,12 @@ class BLECallbacks : public BLECharacteristicCallbacks
         if (value[0] == '0')
         {
           Serial.println("Servo down");
-          servoDown();
+          my_servo.setPetalsOpenLevel(0);
         }
         else if (value[0] == '1')
         {
           Serial.println("Servo up");
-          servoUp();
+          my_servo.setPetalsOpenLevel(100);
         }
         Serial.println();
         Serial.println("*********");
@@ -99,15 +83,8 @@ class BLECallbacks : public BLECharacteristicCallbacks
   }
 };
 
-void setup()
-{
-  Serial.begin(115200);
-  Serial.println("Starting BLE work!");
 
-  pinMode(33, OUTPUT);
-  digitalWrite(33, HIGH);
-}
-void setup1()
+void setup()
 {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
@@ -141,17 +118,22 @@ void setup1()
   Serial.println("Characteristic defined! Now you can read it in your phone!");
 
   // 分配硬件定时器
-  ESP32PWM::allocateTimer(0);
+  // ESP32PWM::allocateTimer(0);
   // 设置频率
-  my_servo.setPeriodHertz(50);
+  // my_servo.setPeriodHertz(50);
   // 关联 servo 对象与 GPIO 引脚，设置脉宽范围
-  my_servo.attach(SERVO_PIN, MIN_WIDTH, MAX_WIDTH);
+  // my_servo.attach(SERVO_PIN, MIN_WIDTH, MAX_WIDTH);
+  // 使能RGB灯
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+
+  my_servo.init(true, false);
+
 }
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-  delay(2000);
+  my_servo.update();
 }
